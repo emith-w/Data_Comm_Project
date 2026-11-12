@@ -58,4 +58,4 @@ blocked packets.
 | 2026-11-12 | `python3 scripts/run-experiments.py` | 31/31 runs OK |
 | 2026-11-12 | `python3 scripts/analyze-results.py` | 12/12 checks PASS, 6 figures |
 | 2026-11-12 | `python3 -m unittest discover -s tests -v` | 15/15 OK (first run: 1 failure, a wrong tolerance in the test itself; fixed) |
-| 2026-11-12 | Clean-clone validation (Stage 5) | see `docs/dev-log.md`, Stage 5 |
+| 2026-11-12 | Clean-clone validation (Stage 5) | builds; 15/15 tests; 31/31 runs; 12/12 checks; all results byte-identical on re-run |
