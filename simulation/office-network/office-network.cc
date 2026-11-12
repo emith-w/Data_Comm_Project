@@ -14,6 +14,7 @@
  *
  * Run:  ./ns3 run "office-network --help"
  */
+#include "access-control.h"
 #include "network-config.h"
 
 #include "ns3/applications-module.h"
@@ -79,6 +80,7 @@ struct RouterCounters
 {
     uint64_t rx = 0;        ///< packets of this flow that reached the router's IP layer
     uint64_t forwarded = 0; ///< packets the router actually forwarded
+    uint64_t dropTrace = 0; ///< packets reported by the router's Drop trace (route error)
 };
 
 std::map<FlowKey, RouterCounters> g_router;
@@ -111,6 +113,25 @@ RouterForward(const Ipv4Header& ip, Ptr<const Packet> p, uint32_t)
     p->PeekHeader(udp);
     g_router[{ip.GetSource().Get(), ip.GetDestination().Get(), udp.GetDestinationPort()}]
         .forwarded++;
+}
+
+/// Router "Drop" trace: with --filterSendIcmp=true, denied packets pass through
+/// the router's error path and are reported here as DROP_ROUTE_ERROR.
+void
+RouterDrop(const Ipv4Header& ip,
+           Ptr<const Packet> p,
+           Ipv4L3Protocol::DropReason reason,
+           Ptr<Ipv4>,
+           uint32_t)
+{
+    if (ip.GetProtocol() != kUdp || reason != Ipv4L3Protocol::DROP_ROUTE_ERROR)
+    {
+        return;
+    }
+    UdpHeader udp;
+    p->PeekHeader(udp);
+    g_router[{ip.GetSource().Get(), ip.GetDestination().Get(), udp.GetDestinationPort()}]
+        .dropTrace++;
 }
 
 /// Checks that host `from` routes towards `to` through `gateway`
@@ -168,6 +189,11 @@ main(int argc, char* argv[])
     cmd.AddValue("packetSize", "UDP payload size (bytes)", cfg.packetSize);
     cmd.AddValue("loadMbps", "Offered load per flow (Mbps of UDP payload)", cfg.loadMbps);
     cmd.AddValue("flows", "Flows to run: all | intra | inter | comma list of ids 1-6", cfg.flows);
+    cmd.AddValue("enableFilter", "Apply the Staff -> AdminPC1 deny rule on the router",
+                 cfg.enableFilter);
+    cmd.AddValue("filterSendIcmp",
+                 "Denied packets go through the router error path (Drop trace + ICMP)",
+                 cfg.filterSendIcmp);
     cmd.AddValue("seed", "Random seed", cfg.seed);
     cmd.AddValue("run", "Random run number", cfg.run);
     cmd.AddValue("outDir", "Directory for result files (empty = print only)", cfg.outDir);
@@ -229,6 +255,23 @@ main(int argc, char* argv[])
     // Ipv4 "IpForward" attribute (true by default) and checked below.
     Ipv4GlobalRoutingHelper::PopulateRoutingTables();
 
+    // ------------------------------------------------------- access control
+    // Equivalent of the proposal's Cisco extended ACL, applied on the router:
+    //   Rule 1: deny   192.168.20.0/24 -> 192.168.10.10/32
+    //   Rule 2: permit 192.168.20.0/24 -> 192.168.10.11/32
+    //   Rule 3: permit any (implicit)
+    // The filter is always installed; --enableFilter only switches it on, so
+    // the baseline and filtered runs use exactly the same code path.
+    Ptr<AclFilterRouting> acl = CreateObject<AclFilterRouting>();
+    acl->AddRule({Ipv4Address(addr::kStaffNet), Ipv4Mask(addr::kMask),
+                  Ipv4Address(addr::kAdminPc1), Ipv4Mask("255.255.255.255"), AclAction::DENY});
+    acl->AddRule({Ipv4Address(addr::kStaffNet), Ipv4Mask(addr::kMask),
+                  Ipv4Address(addr::kAdminPc2), Ipv4Mask("255.255.255.255"), AclAction::PERMIT});
+    acl->SetEnabled(cfg.enableFilter);
+    acl->SetSendIcmp(cfg.filterSendIcmp);
+    auto routerList = DynamicCast<Ipv4ListRouting>(router->GetObject<Ipv4>()->GetRoutingProtocol());
+    routerList->AddRoutingProtocol(acl, 100); // highest priority = consulted first
+
     // ----------------------------------------------- structural validation
     Check(hosts.GetN() == 4, "exactly 4 end-host nodes");
     Check(router->GetObject<Ipv4>()->GetNInterfaces() == 3,
@@ -251,6 +294,11 @@ main(int argc, char* argv[])
         Check(rip->IsForwarding(1) && rip->IsForwarding(2),
               "IP forwarding enabled on both router interfaces");
     }
+    {
+        int16_t prio = 0;
+        Check(routerList->GetRoutingProtocol(0, prio) == acl && prio == 100,
+              "access-control filter is the first protocol in the router's list routing");
+    }
     CheckRoute(hosts.Get(ADMIN_PC1), "AdminPC1", addr::kAdminPc2, nullptr);
     CheckRoute(hosts.Get(STAFF_PC1), "StaffPC1", addr::kStaffPc2, nullptr);
     CheckRoute(hosts.Get(STAFF_PC1), "StaffPC1", addr::kAdminPc1, addr::kStaffRouter);
@@ -262,6 +310,7 @@ main(int argc, char* argv[])
     Ptr<Ipv4L3Protocol> routerIp = router->GetObject<Ipv4L3Protocol>();
     routerIp->TraceConnectWithoutContext("Rx", MakeCallback(&RouterRx));
     routerIp->TraceConnectWithoutContext("UnicastForward", MakeCallback(&RouterForward));
+    routerIp->TraceConnectWithoutContext("Drop", MakeCallback(&RouterDrop));
 
     // ----------------------------------------------------------- traffic
     // Constant-bit-rate UDP: interval = payload bits / offered rate.
@@ -317,7 +366,8 @@ main(int argc, char* argv[])
     csv << "experiment_id,flow_id,source,destination,source_ip,destination_ip,dst_port,"
            "offered_load_mbps,filter_enabled,csma_rate,csma_delay,packet_size,seed,run,duration_s,"
            "app_tx_packets,app_rx_packets,tx_packets,rx_packets,lost_packets,"
-           "blocked_packets,router_rx_packets,router_forwarded_packets,throughput_mbps,"
+           "blocked_packets,router_rx_packets,router_forwarded_packets,router_drop_trace_packets,"
+           "throughput_mbps,"
            "packet_delivery_ratio,packet_loss_ratio,average_delay_ms,average_jitter_ms\n";
 
     std::cout << "\nflow  src->dst              tx     rx   PDR%    thr(Mbps)  delay(ms)\n";
@@ -340,7 +390,7 @@ main(int argc, char* argv[])
         uint64_t appTx = clients[i]->GetTotalTx() / cfg.packetSize;
         uint64_t appRx = servers[i]->GetReceived();
         const RouterCounters& rc = g_router[{src.Get(), dst.Get(), f.port}];
-        uint64_t blocked = 0; // set by the access-control filter (Stage 3)
+        uint64_t blocked = acl->GetDeniedForFlow({src.Get(), dst.Get(), f.port});
 
         double tput = fs.rxBytes * 8.0 / (cfg.ActiveDuration() * 1e6);
         double pdr = fs.txPackets ? 100.0 * fs.rxPackets / fs.txPackets : NAN;
@@ -355,7 +405,7 @@ main(int argc, char* argv[])
             << cfg.csmaRate << ',' << cfg.csmaDelay << ',' << cfg.packetSize << ',' << cfg.seed << ',' << cfg.run << ','
             << cfg.ActiveDuration() << ',' << appTx << ',' << appRx << ',' << fs.txPackets << ','
             << fs.rxPackets << ',' << fs.lostPackets << ',' << blocked << ',' << rc.rx << ','
-            << rc.forwarded << ',' << Fmt(tput, 6) << ',' << Fmt(pdr) << ',' << Fmt(loss) << ','
+            << rc.forwarded << ',' << rc.dropTrace << ',' << Fmt(tput, 6) << ',' << Fmt(pdr) << ',' << Fmt(loss) << ','
             << Fmt(delay, 6) << ',' << Fmt(jitter, 6) << '\n';
 
         std::cout << std::setw(4) << f.id << "  " << std::left << std::setw(20)
@@ -363,6 +413,32 @@ main(int argc, char* argv[])
                   << std::setw(6) << fs.txPackets << std::setw(7) << fs.rxPackets << std::setw(8)
                   << Fmt(pdr, 2) << std::setw(11) << Fmt(tput, 4) << std::setw(11)
                   << Fmt(delay, 4) << "\n";
+
+        // Access-control policy checks (counters only, so congestion loss can
+        // never be mistaken for a policy drop).
+        std::string fid = "flow " + std::to_string(f.id) + ": ";
+        bool deniedByPolicy =
+            cfg.enableFilter && f.interDepartment && f.dst == ADMIN_PC1;
+        if (deniedByPolicy)
+        {
+            Check(blocked > 0 && blocked == rc.rx, fid + "every packet reaching the router was "
+                                                         "blocked (" + std::to_string(blocked) +
+                                                         "/" + std::to_string(rc.rx) + ")");
+            Check(rc.forwarded == 0, fid + "router forwarded 0 packets");
+            Check(appRx == 0, fid + "destination received 0 packets");
+            if (cfg.filterSendIcmp)
+            {
+                Check(rc.dropTrace == blocked, fid + "router Drop trace saw every blocked packet");
+            }
+        }
+        else
+        {
+            Check(blocked == 0, fid + "no packets blocked by the filter");
+            if (f.interDepartment)
+            {
+                Check(rc.forwarded == rc.rx, fid + "router forwarded every packet it received");
+            }
+        }
 
         // Internal consistency: FlowMonitor and the applications must agree.
         Check(appTx == fs.txPackets, "flow " + std::to_string(f.id) +
@@ -383,6 +459,9 @@ main(int argc, char* argv[])
              << "\napp_stop_s=" << cfg.AppStop() << "\npacket_size_bytes=" << cfg.packetSize
              << "\noffered_load_mbps_per_flow=" << cfg.loadMbps << "\nflows=" << cfg.flows
              << "\nfilter_enabled=" << (cfg.enableFilter ? "true" : "false")
+             << "\nfilter_send_icmp=" << (cfg.filterSendIcmp ? "true" : "false")
+             << "\nfilter_denied_total=" << acl->GetDenied()
+             << "\nfilter_permitted_total=" << acl->GetPermitted()
              << "\nseed=" << cfg.seed << "\nrun=" << cfg.run << "\nrouting=Ipv4GlobalRouting\n";
         std::ofstream checks(cfg.outDir + "/validation.txt");
         for (const auto& line : g_checkLog)
@@ -392,7 +471,10 @@ main(int argc, char* argv[])
         monitor->SerializeToXmlFile(cfg.outDir + "/flowmon.xml", false, false);
     }
 
+    std::cout << "\nfilter: " << (cfg.enableFilter ? "ENABLED" : "disabled")
+              << "  denied=" << acl->GetDenied() << "  permitted=" << acl->GetPermitted()
+              << std::endl;
     Simulator::Destroy();
-    std::cout << "\nchecks failed: " << g_failedChecks << std::endl;
+    std::cout << "checks failed: " << g_failedChecks << std::endl;
     return g_failedChecks == 0 ? 0 : 1;
 }

@@ -24,3 +24,14 @@ Only results that were actually executed are recorded here.
 * 60 s baseline (`results/stage2-baseline/`): all 6 flows tx = rx (≈ 6958 packets each), 100% delivery, 0.087–0.174 ms average delay. For the 4 cross-department flows, router rx = router forwarded = packets delivered. ✅
 * Throughput is 1.0273 Mbps for 1 Mbps offered because FlowMonitor counts IP+UDP headers (1052 / 1024 bytes).
 * Replaced the deprecated `UdpL4Protocol::PROT_NUMBER` (deprecated in 3.49) with `iana::internetprotocolnumbers::UDP`. The build now has no warnings.
+
+## Stage 3 — Access-control filter (2026-11-12)
+
+* Added `AclFilterRouting` (`simulation/office-network/access-control.h`) at priority 100 in the router's `Ipv4ListRouting`. New flags: `--enableFilter`, `--filterSendIcmp`.
+* Added router `Drop` trace counting and automatic policy checks (blocked == router rx, forwarded == 0, destination rx == 0 for denied flows; blocked == 0 everywhere else).
+* 10 s tests, all `checks failed: 0`:
+  * `--enableFilter=false` → all 6 flows 100% delivered, 0 blocked ✅
+  * `--enableFilter=true` → flows 3 and 5 (Staff→AdminPC1) 0 received, 854/854 blocked, 0 forwarded. Flows 1, 2, 4 and 6 at 100% ✅
+  * `--enableFilter=true --filterSendIcmp=true` → same, and the router Drop trace counted every blocked packet ✅
+* 60 s evidence saved in `results/stage3-filter-on/` and `results/stage3-filter-off/` (0 failed checks in both).
+* Design and evidence: `docs/access-control.md`.
