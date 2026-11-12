@@ -1,0 +1,14 @@
+ns3_version=3.49
+experiment=stage2_baseline
+csma_rate=100Mbps
+csma_delay=500ns
+sim_time_s=60
+app_start_s=1
+app_stop_s=58
+packet_size_bytes=1024
+offered_load_mbps_per_flow=1
+flows=all
+filter_enabled=false
+seed=1
+run=1
+routing=Ipv4GlobalRouting
