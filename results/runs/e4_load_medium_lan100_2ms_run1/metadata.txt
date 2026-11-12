@@ -1,0 +1,17 @@
+ns3_version=3.49
+experiment=e4_load_medium_lan100_2ms_run1
+csma_rate=100Mbps
+csma_delay=2ms
+sim_time_s=60
+app_start_s=1
+app_stop_s=58
+packet_size_bytes=1024
+offered_load_mbps_per_flow=5
+flows=all
+filter_enabled=false
+filter_send_icmp=false
+filter_denied_total=0
+filter_permitted_total=0
+seed=1
+run=1
+routing=Ipv4GlobalRouting

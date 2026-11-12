@@ -1,0 +1,54 @@
+CHECK PASS: exactly 4 end-host nodes
+CHECK PASS: router has 3 IPv4 interfaces (loopback + Admin + Staff)
+CHECK PASS: Admin and Staff are separate CSMA channels, router attached to both
+CHECK PASS: AdminPC1 has address 192.168.10.10
+CHECK PASS: AdminPC2 has address 192.168.10.11
+CHECK PASS: StaffPC1 has address 192.168.20.10
+CHECK PASS: StaffPC2 has address 192.168.20.11
+CHECK PASS: router interfaces are 192.168.10.1 and 192.168.20.1
+CHECK PASS: IP forwarding enabled on both router interfaces
+CHECK PASS: access-control filter is the first protocol in the router's list routing
+CHECK PASS: route AdminPC1 -> 192.168.10.11 via direct (same subnet)
+CHECK PASS: route StaffPC1 -> 192.168.20.11 via direct (same subnet)
+CHECK PASS: route StaffPC1 -> 192.168.10.10 via 192.168.20.1
+CHECK PASS: route StaffPC2 -> 192.168.10.11 via 192.168.20.1
+CHECK PASS: route AdminPC1 -> 192.168.20.10 via 192.168.10.1
+
+flow  src->dst              tx     rx   PDR%    thr(Mbps)  delay(ms)
+   1  AdminPC1->AdminPC2    6958   6958  100.00     1.0273     5.7023
+CHECK PASS: flow 1: no packets blocked by the filter
+CHECK PASS: flow 1: all 0 missing packets explained (blocked+queue+channel+arp=0)
+CHECK PASS: flow 1: app tx == FlowMonitor tx (6958)
+CHECK PASS: flow 1: app rx == FlowMonitor rx (6958)
+   2  StaffPC1->StaffPC2    6958   3472   49.90     0.5126   455.0369
+CHECK PASS: flow 2: no packets blocked by the filter
+CHECK PASS: flow 2: all 3486 missing packets explained (blocked+queue+channel+arp=3486)
+CHECK PASS: flow 2: app tx == FlowMonitor tx (6958)
+CHECK PASS: flow 2: app rx == FlowMonitor rx (3472)
+   3  StaffPC1->AdminPC1    6958   4622   66.43     0.6824   779.5884
+CHECK PASS: flow 3: no packets blocked by the filter
+CHECK PASS: flow 3: router forwarded every packet it received
+CHECK PASS: flow 3: all 2336 missing packets explained (blocked+queue+channel+arp=2336)
+CHECK PASS: flow 3: app tx == FlowMonitor tx (6958)
+CHECK PASS: flow 3: app rx == FlowMonitor rx (4622)
+   4  StaffPC1->AdminPC2    6957   2904   41.74     0.4288   778.4285
+CHECK PASS: flow 4: no packets blocked by the filter
+CHECK PASS: flow 4: router forwarded every packet it received
+CHECK PASS: flow 4: all 4053 missing packets explained (blocked+queue+channel+arp=4053)
+CHECK PASS: flow 4: app tx == FlowMonitor tx (6957)
+CHECK PASS: flow 4: app rx == FlowMonitor rx (2904)
+   5  StaffPC2->AdminPC1    6958   4959   71.27     0.7322   757.1326
+CHECK PASS: flow 5: no packets blocked by the filter
+CHECK PASS: flow 5: router forwarded every packet it received
+CHECK PASS: flow 5: all 1999 missing packets explained (blocked+queue+channel+arp=1999)
+CHECK PASS: flow 5: app tx == FlowMonitor tx (6958)
+CHECK PASS: flow 5: app rx == FlowMonitor rx (4959)
+   6  StaffPC2->AdminPC2    6958   5165   74.23     0.7626   756.9917
+CHECK PASS: flow 6: no packets blocked by the filter
+CHECK PASS: flow 6: router forwarded every packet it received
+CHECK PASS: flow 6: all 1793 missing packets explained (blocked+queue+channel+arp=1793)
+CHECK PASS: flow 6: app tx == FlowMonitor tx (6958)
+CHECK PASS: flow 6: app rx == FlowMonitor rx (5165)
+
+filter: disabled  denied=0  permitted=0
+checks failed: 0

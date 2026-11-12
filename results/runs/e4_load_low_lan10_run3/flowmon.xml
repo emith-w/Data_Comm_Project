@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<FlowMonitor>
+  <FlowStats>
+    <Flow flowId="1" timeFirstTxPacket="+1.00106e+09ns" timeFirstRxPacket="+1.00998e+09ns" timeLastTxPacket="+5.79928e+10ns" timeLastRxPacket="+5.79965e+10ns" delaySum="+2.53574e+10ns" jitterSum="+2.75798e+09ns" lastDelay="+3.67e+06ns" maxDelay="+8.9238e+06ns" minDelay="+2.56101e+06ns" txBytes="7319816" rxBytes="7319816" txPackets="6958" rxPackets="6958" lostPackets="0" timesForwarded="6958">
+    </Flow>
+    <Flow flowId="2" timeFirstTxPacket="+1.00112e+09ns" timeFirstRxPacket="+1.01095e+09ns" timeLastTxPacket="+5.79929e+10ns" timeLastRxPacket="+5.79973e+10ns" delaySum="+3.09618e+10ns" jitterSum="+2.74486e+09ns" lastDelay="+4.47391e+06ns" maxDelay="+9.83311e+06ns" minDelay="+3.36492e+06ns" txBytes="7319816" rxBytes="7319816" txPackets="6958" rxPackets="6958" lostPackets="0" timesForwarded="6958">
+    </Flow>
+    <Flow flowId="3" timeFirstTxPacket="+1.00268e+09ns" timeFirstRxPacket="+1.01401e+09ns" timeLastTxPacket="+5.79944e+10ns" timeLastRxPacket="+5.79954e+10ns" delaySum="+7.97833e+09ns" jitterSum="+2.35413e+09ns" lastDelay="+955500ns" maxDelay="+1.13339e+07ns" minDelay="+933500ns" txBytes="7319816" rxBytes="7319816" txPackets="6958" rxPackets="6958" lostPackets="0" timesForwarded="0">
+    </Flow>
+    <Flow flowId="4" timeFirstTxPacket="+1.00421e+09ns" timeFirstRxPacket="+1.00517e+09ns" timeLastTxPacket="+5.79959e+10ns" timeLastRxPacket="+5.79968e+10ns" delaySum="+6.25767e+09ns" jitterSum="+5.22534e+08ns" lastDelay="+856500ns" maxDelay="+2.0775e+06ns" minDelay="+856500ns" txBytes="7319816" rxBytes="7319816" txPackets="6958" rxPackets="6958" lostPackets="0" timesForwarded="0">
+    </Flow>
+    <Flow flowId="5" timeFirstTxPacket="+1.00565e+09ns" timeFirstRxPacket="+1.01589e+09ns" timeLastTxPacket="+5.79974e+10ns" timeLastRxPacket="+5.79991e+10ns" delaySum="+1.19405e+10ns" jitterSum="+3.02545e+07ns" lastDelay="+1.713e+06ns" maxDelay="+1.02404e+07ns" minDelay="+1.713e+06ns" txBytes="7319816" rxBytes="7319816" txPackets="6958" rxPackets="6958" lostPackets="0" timesForwarded="6958">
+    </Flow>
+    <Flow flowId="6" timeFirstTxPacket="+1.00923e+09ns" timeFirstRxPacket="+1.01676e+09ns" timeLastTxPacket="+5.79928e+10ns" timeLastRxPacket="+5.79945e+10ns" delaySum="+1.19232e+10ns" jitterSum="+5.81321e+06ns" lastDelay="+1.713e+06ns" maxDelay="+7.52621e+06ns" minDelay="+1.713e+06ns" txBytes="7318764" rxBytes="7318764" txPackets="6957" rxPackets="6957" lostPackets="0" timesForwarded="6957">
+    </Flow>
+  </FlowStats>
+  <Ipv4FlowClassifier>
+    <Flow flowId="3" sourceAddress="192.168.10.10" destinationAddress="192.168.10.11" protocol="17" sourcePort="49153" destinationPort="5001">
+      <Dscp value="0x0" packets="6958" />
+    </Flow>
+    <Flow flowId="6" sourceAddress="192.168.20.10" destinationAddress="192.168.10.10" protocol="17" sourcePort="49155" destinationPort="5003">
+      <Dscp value="0x0" packets="6957" />
+    </Flow>
+    <Flow flowId="5" sourceAddress="192.168.20.10" destinationAddress="192.168.10.11" protocol="17" sourcePort="49154" destinationPort="5004">
+      <Dscp value="0x0" packets="6958" />
+    </Flow>
+    <Flow flowId="4" sourceAddress="192.168.20.10" destinationAddress="192.168.20.11" protocol="17" sourcePort="49153" destinationPort="5002">
+      <Dscp value="0x0" packets="6958" />
+    </Flow>
+    <Flow flowId="1" sourceAddress="192.168.20.11" destinationAddress="192.168.10.10" protocol="17" sourcePort="49153" destinationPort="5005">
+      <Dscp value="0x0" packets="6958" />
+    </Flow>
+    <Flow flowId="2" sourceAddress="192.168.20.11" destinationAddress="192.168.10.11" protocol="17" sourcePort="49154" destinationPort="5006">
+      <Dscp value="0x0" packets="6958" />
+    </Flow>
+  </Ipv4FlowClassifier>
+  <Ipv6FlowClassifier>
+  </Ipv6FlowClassifier>
+</FlowMonitor>

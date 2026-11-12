@@ -1,4 +1,3 @@
-results/runs/
 __pycache__/
 *.pyc
 .ns3-path

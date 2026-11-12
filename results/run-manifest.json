@@ -1,0 +1,259 @@
+{
+  "ns3_version": "3.49",
+  "project_commit": "c53428b82713135592e7840a6e20857cf317bb2d",
+  "started": "2026-11-12T15:09:16",
+  "sim_time_s": 60.0,
+  "seed": 1,
+  "runs": [
+    {
+      "run_id": "e1_basic_connectivity",
+      "experiment_name": "Experiment 1: basic connectivity",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=intra --loadMbps=1 --enableFilter=false --experiment=e1_basic_connectivity --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e1_basic_connectivity",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e2_interdepartmental_routing",
+      "experiment_name": "Experiment 2: interdepartmental routing",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=inter --loadMbps=1 --enableFilter=false --experiment=e2_interdepartmental_routing --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e2_interdepartmental_routing",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e3_access_control_off",
+      "experiment_name": "Experiment 3: access control (filter off)",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=1 --enableFilter=false --experiment=e3_access_control_off --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e3_access_control_off",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e3_access_control_on",
+      "experiment_name": "Experiment 3: access control (filter on)",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=1 --enableFilter=true --filterSendIcmp=true --experiment=e3_access_control_on --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e3_access_control_on",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_run1",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_run2",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_run3",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_run1",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_run2",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_run3",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_run1",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_run2",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_run3",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan10_run1",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan10_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan10_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan10_run2",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan10_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan10_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan10_run3",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan10_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan10_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan10_run1",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan10_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan10_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan10_run2",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan10_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan10_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan10_run3",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan10_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan10_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan10_run1",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan10_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan10_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan10_run2",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan10_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan10_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan10_run3",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan10",
+      "command": "office-network --csmaRate=10Mbps --csmaDelay=500ns --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan10_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan10_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_2ms_run1",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_2ms_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_2ms_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_2ms_run2",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_2ms_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_2ms_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_low_lan100_2ms_run3",
+      "experiment_name": "Experiment 4: low load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=1.0 --enableFilter=false --experiment=e4_load_low_lan100_2ms_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_low_lan100_2ms_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_2ms_run1",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_2ms_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_2ms_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_2ms_run2",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_2ms_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_2ms_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_medium_lan100_2ms_run3",
+      "experiment_name": "Experiment 4: medium load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=5.0 --enableFilter=false --experiment=e4_load_medium_lan100_2ms_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_medium_lan100_2ms_run3",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_2ms_run1",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_2ms_run1 --simTime=60.0 --seed=1 --run=1 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_2ms_run1",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_2ms_run2",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_2ms_run2 --simTime=60.0 --seed=1 --run=2 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_2ms_run2",
+      "exit_code": 0,
+      "ok": true
+    },
+    {
+      "run_id": "e4_load_high_lan100_2ms_run3",
+      "experiment_name": "Experiment 4: high load",
+      "lan_profile": "lan100_2ms",
+      "command": "office-network --csmaRate=100Mbps --csmaDelay=2ms --flows=all --loadMbps=10.0 --enableFilter=false --experiment=e4_load_high_lan100_2ms_run3 --simTime=60.0 --seed=1 --run=3 --outDir=/home/claude/small-office-ns3/results/runs/e4_load_high_lan100_2ms_run3",
+      "exit_code": 0,
+      "ok": true
+    }
+  ],
+  "finished": "2026-11-12T15:09:49",
+  "failed_runs": []
+}

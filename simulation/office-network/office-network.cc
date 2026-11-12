@@ -23,6 +23,7 @@
 #include "ns3/flow-monitor-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/network-module.h"
+#include "ns3/traffic-control-module.h"
 
 #include <cmath>
 #include <filesystem>
@@ -83,6 +84,23 @@ struct RouterCounters
     uint64_t dropTrace = 0; ///< packets reported by the router's Drop trace (route error)
 };
 
+/// Congestion-related drops seen at any CSMA device (hosts or router).
+struct DeviceDrops
+{
+    uint64_t queue = 0;   ///< transmit queue full (TcDrop / MacTxDrop)
+    uint64_t channel = 0; ///< PhyTxDrop: CSMA backoff gave up / transmission aborted
+    uint64_t arp = 0;     ///< ARP pending queue full or ARP request timed out
+};
+
+enum class DropKind
+{
+    QUEUE,
+    CHANNEL,
+    ARP
+};
+
+std::map<FlowKey, DeviceDrops> g_deviceDrops;
+
 std::map<FlowKey, RouterCounters> g_router;
 
 /// Router "Rx" trace: the packet still carries its IPv4 header here.
@@ -132,6 +150,70 @@ RouterDrop(const Ipv4Header& ip,
     p->PeekHeader(udp);
     g_router[{ip.GetSource().Get(), ip.GetDestination().Get(), udp.GetDestinationPort()}]
         .dropTrace++;
+}
+
+/// Counts one congestion drop for the UDP flow in an IPv4 packet.
+void
+CountIpDrop(DropKind kind, Ptr<Packet> ipPacket)
+{
+    uint8_t first = 0;
+    if (ipPacket->GetSize() < 28 || ipPacket->CopyData(&first, 1) != 1 || (first >> 4) != 4)
+    {
+        return; // not an IPv4 packet (e.g. an ARP reply dropped by ArpL3Protocol)
+    }
+    Ipv4Header ip;
+    ipPacket->RemoveHeader(ip);
+    if (ip.GetProtocol() != kUdp)
+    {
+        return;
+    }
+    UdpHeader udp;
+    ipPacket->PeekHeader(udp);
+    auto& d =
+        g_deviceDrops[{ip.GetSource().Get(), ip.GetDestination().Get(), udp.GetDestinationPort()}];
+    switch (kind)
+    {
+    case DropKind::QUEUE:
+        d.queue++;
+        break;
+    case DropKind::CHANNEL:
+        d.channel++;
+        break;
+    case DropKind::ARP:
+        d.arp++;
+        break;
+    }
+}
+
+/// ArpL3Protocol / ArpCache "Drop": the IPv4 header is re-attached before tracing.
+void
+ArpDrop(Ptr<const Packet> p)
+{
+    CountIpDrop(DropKind::ARP, p->Copy());
+}
+
+/// TrafficControlLayer "TcDrop": no queue disc is installed, so when a CSMA
+/// device's 100-packet DropTail queue is full the device tells the traffic
+/// control layer to stop, and new packets are dropped here (IPv4 header present).
+void
+TcDrop(Ptr<const Packet> p)
+{
+    CountIpDrop(DropKind::QUEUE, p->Copy());
+}
+
+/// CSMA "MacTxDrop"/"PhyTxDrop" traces. The packet carries an Ethernet II
+/// header (CsmaNetDevice default "Dix" encapsulation) in front of IPv4/UDP.
+void
+DeviceDrop(bool queueDrop, Ptr<const Packet> p)
+{
+    Ptr<Packet> copy = p->Copy();
+    EthernetHeader eth(false);
+    copy->RemoveHeader(eth);
+    if (eth.GetLengthType() != iana::ieee802numbers::IPV4)
+    {
+        return; // e.g. ARP
+    }
+    CountIpDrop(queueDrop ? DropKind::QUEUE : DropKind::CHANNEL, copy);
 }
 
 /// Checks that host `from` routes towards `to` through `gateway`
@@ -311,6 +393,32 @@ main(int argc, char* argv[])
     routerIp->TraceConnectWithoutContext("Rx", MakeCallback(&RouterRx));
     routerIp->TraceConnectWithoutContext("UnicastForward", MakeCallback(&RouterForward));
     routerIp->TraceConnectWithoutContext("Drop", MakeCallback(&RouterDrop));
+    for (uint32_t n = 0; n < NodeList::GetNNodes(); ++n)
+    {
+        NodeList::GetNode(n)->GetObject<TrafficControlLayer>()->TraceConnectWithoutContext(
+            "TcDrop",
+            MakeCallback(&TcDrop));
+        Ptr<Node> node = NodeList::GetNode(n);
+        node->GetObject<ArpL3Protocol>()->TraceConnectWithoutContext("Drop",
+                                                                     MakeCallback(&ArpDrop));
+        Ptr<Ipv4L3Protocol> ip = node->GetObject<Ipv4L3Protocol>();
+        for (uint32_t i = 1; i < ip->GetNInterfaces(); ++i) // 0 = loopback (no ARP)
+        {
+            ip->GetInterface(i)->GetArpCache()->TraceConnectWithoutContext(
+                "Drop",
+                MakeCallback(&ArpDrop));
+        }
+    }
+    for (NetDeviceContainer* devs : {&adminDevs, &staffDevs})
+    {
+        for (uint32_t i = 0; i < devs->GetN(); ++i)
+        {
+            devs->Get(i)->TraceConnectWithoutContext("MacTxDrop",
+                                                     MakeBoundCallback(&DeviceDrop, true));
+            devs->Get(i)->TraceConnectWithoutContext("PhyTxDrop",
+                                                     MakeBoundCallback(&DeviceDrop, false));
+        }
+    }
 
     // ----------------------------------------------------------- traffic
     // Constant-bit-rate UDP: interval = payload bits / offered rate.
@@ -366,7 +474,9 @@ main(int argc, char* argv[])
     csv << "experiment_id,flow_id,source,destination,source_ip,destination_ip,dst_port,"
            "offered_load_mbps,filter_enabled,csma_rate,csma_delay,packet_size,seed,run,duration_s,"
            "app_tx_packets,app_rx_packets,tx_packets,rx_packets,lost_packets,"
-           "blocked_packets,router_rx_packets,router_forwarded_packets,router_drop_trace_packets,"
+           "blocked_packets,queue_drop_packets,channel_drop_packets,arp_drop_packets,"
+           "router_rx_packets,"
+           "router_forwarded_packets,router_drop_trace_packets,"
            "throughput_mbps,"
            "packet_delivery_ratio,packet_loss_ratio,average_delay_ms,average_jitter_ms\n";
 
@@ -391,6 +501,7 @@ main(int argc, char* argv[])
         uint64_t appRx = servers[i]->GetReceived();
         const RouterCounters& rc = g_router[{src.Get(), dst.Get(), f.port}];
         uint64_t blocked = acl->GetDeniedForFlow({src.Get(), dst.Get(), f.port});
+        const DeviceDrops& dd = g_deviceDrops[{src.Get(), dst.Get(), f.port}];
 
         double tput = fs.rxBytes * 8.0 / (cfg.ActiveDuration() * 1e6);
         double pdr = fs.txPackets ? 100.0 * fs.rxPackets / fs.txPackets : NAN;
@@ -404,7 +515,8 @@ main(int argc, char* argv[])
             << cfg.loadMbps << ',' << (cfg.enableFilter ? "true" : "false") << ','
             << cfg.csmaRate << ',' << cfg.csmaDelay << ',' << cfg.packetSize << ',' << cfg.seed << ',' << cfg.run << ','
             << cfg.ActiveDuration() << ',' << appTx << ',' << appRx << ',' << fs.txPackets << ','
-            << fs.rxPackets << ',' << fs.lostPackets << ',' << blocked << ',' << rc.rx << ','
+            << fs.rxPackets << ',' << fs.lostPackets << ',' << blocked << ',' << dd.queue << ',' << dd.channel << ','
+            << dd.arp << ',' << rc.rx << ','
             << rc.forwarded << ',' << rc.dropTrace << ',' << Fmt(tput, 6) << ',' << Fmt(pdr) << ',' << Fmt(loss) << ','
             << Fmt(delay, 6) << ',' << Fmt(jitter, 6) << '\n';
 
@@ -439,6 +551,13 @@ main(int argc, char* argv[])
                 Check(rc.forwarded == rc.rx, fid + "router forwarded every packet it received");
             }
         }
+
+        // Every packet that was sent but not received must have a recorded cause.
+        uint64_t explained = blocked + dd.queue + dd.channel + dd.arp;
+        Check(fs.txPackets - fs.rxPackets == explained,
+              fid + "all " + std::to_string(fs.txPackets - fs.rxPackets) +
+                  " missing packets explained (blocked+queue+channel+arp=" +
+                  std::to_string(explained) + ")");
 
         // Internal consistency: FlowMonitor and the applications must agree.
         Check(appTx == fs.txPackets, "flow " + std::to_string(f.id) +

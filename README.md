@@ -3,7 +3,7 @@
 COMP 3343 — Data Communications and Computer Networks, Acadia University
 Group: Jay Patel, Emith Weligamage, Jenish Prajapati, Muntha Rahman
 
-> **Status: Stage 3 of 5 (Access control).** See `docs/research.md` and `docs/dev-log.md`.
+> **Status: Stage 4 of 5 (Experiments).** See `docs/research.md` and `docs/dev-log.md`.
 > The full README is written in Stage 5.
 
 | Stage | Content |
