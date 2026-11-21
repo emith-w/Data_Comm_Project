@@ -81,7 +81,7 @@ cd ns-3.49
 cd ..
 
 # 2. Get this project and link it into ns-3's scratch/ folder
-git clone https://github.com/ponzi-scheme/Data_Comm_Project.git small-office-ns3
+git clone https://github.com/emith-2/Data_Comm_Project.git small-office-ns3
 cd small-office-ns3
 scripts/link-into-ns3.sh ../ns-3.49
 
