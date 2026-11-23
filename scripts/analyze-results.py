@@ -180,8 +180,11 @@ def access_control_figure(df):
                 w, color=COLORS["lan10"], label="Filter enabled (after)")
     for i, fid in enumerate(ids):
         if on.loc[fid, "blocked_packets"] > 0:
-            ax.annotate(f"blocked\n{int(on.loc[fid, 'blocked_packets'])} pkts",
-                        (i + w / 2, 2), ha="center", va="bottom", fontsize=7.5, color=INK)
+            # Vertical label inside the empty "after" slot, so it never overlaps the blue bar.
+            ax.text(i + w / 2 + 0.01, 50,
+                    f"0%: {int(on.loc[fid, 'blocked_packets']):,} blocked",
+                    rotation=90, ha="center", va="center", fontsize=8,
+                    color=COLORS["lan10"], fontweight="bold")
     ax.set_xticks(list(x))
     ax.set_xticklabels(names, fontsize=8)
     ax.set_ylabel("Packet delivery ratio (%)")
