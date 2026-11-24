@@ -79,4 +79,4 @@ Build/run commands (`README.md` §4–11), test outcomes (`tests/test-plan.md`),
 | Jay Patel | 1, 2, 3, 4 |
 | Emith Weligamage | 5, 7 |
 | Jenish Prajapati | 6, 8, 9 |
-| Muntha Rahman | 10, 11, 12, abstract, references |
+| Muntaha Rahman | 10, 11, 12, abstract, references |

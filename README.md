@@ -1,7 +1,7 @@
 # Design and Testing of a Small Office Network Using ns-3
 
 **COMP 3343 — Data Communications and Computer Networks, Acadia University**
-Group: Jay Patel, Emith Weligamage, Jenish Prajapati, Muntha Rahman
+Group: Jay Patel, Emith Weligamage, Jenish Prajapati, Muntaha Rahman
 
 A simulated two-department office network built in **ns-3.49** (C++), with:
 IPv4 subnetting, routing between departments, a router access-control filter
